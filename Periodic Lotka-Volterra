@@ -1,0 +1,189 @@
+import numpy as np
+import scipy as sp
+#The original system
+def pend1(y,t):
+    x1, x2, x3 =y
+    dydt=[ x1*(4+np.sin(2*t*np.pi)-0.9*x1-0.2*x2-0.2*x3),
+           x2*(2.5+0.5*np.sin(2*t*np.pi)-0.2*x1-0.8*x2-0.2*x3),
+           x3*(2.5+0.5*np.cos(2*t*np.pi)-0.2*x1-0.2*x2-0.7*x3)]
+    return dydt
+#The perturbated systems
+def pert1(y,t):
+    x1, x2, x3 =y
+    dydt=[ x1*(4+np.sin(2*t*np.pi)-0.9*x1-0.2*x2-0.2*x3+0.25),
+           x2*(2.5+0.5*np.sin(2*t*np.pi)-0.2*x1-0.8*x2-0.2*x3),
+           x3*(2.5+0.5*np.cos(2*t*np.pi)-0.2*x1-0.2*x2-0.7*x3)]
+    return dydt
+
+def pert2(y,t):
+    x1, x2, x3 =y
+    dydt=[ x1*(4+np.sin(2*t*np.pi)-0.9*x1-0.2*x2-0.2*x3),
+           x2*(2.5+0.5*np.sin(2*t*np.pi)-0.2*x1-0.8*x2-0.2*x3+0.2),
+           x3*(2.5+0.5*np.cos(2*t*np.pi)-0.2*x1-0.2*x2-0.7*x3)]
+    return dydt
+
+def pert3(y,t):
+    x1, x2, x3 =y
+    dydt=[ x1*(4+np.sin(2*t*np.pi)-0.9*x1-0.2*x2-0.2*x3),
+           x2*(2.5+0.5*np.sin(2*t*np.pi)-0.2*x1-0.8*x2-0.2*x3),
+           x3*(2.5+0.5*np.cos(2*t*np.pi)-0.2*x1-0.2*x2-0.7*x3+0.15)]
+    return dydt
+
+y0=[0.8, 0.6, 0.6]
+t=np.linspace(0,200,20001)
+
+sol=sp.integrate.odeint(pend1,y0,t)
+solpert1=sp.integrate.odeint(pert1,y0,t)
+solpert2=sp.integrate.odeint(pert2,y0,t)
+solpert3=sp.integrate.odeint(pert3,y0,t)
+
+# Plot of the periodic solution of the original system and those of the perturbated systems
+
+import matplotlib.pyplot as plt
+
+fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, ncols=1, figsize=(10,15))
+
+ax1.plot(t1, sol[10000:10201,0],'b', label=r"$\bar{x}_1(t)$")
+ax1.plot(t1, solpert2[10000:10201,0],'g', label=r"$x_{1p_2}(t)$")
+ax1.plot(t1, solpert3[10000:10201,0],'r', label=r"$x_{1p_3}(t)$")
+ax1.legend(loc='best')
+ax1.set_xlabel('Time')
+ax1.grid()
+
+ax2.plot(t1, sol[10000:10201,1],'b', label=r"$\bar{x}_2(t)$")
+ax2.plot(t1, solpert1[10000:10201,1],'g', label=r"$x_{2p_1}(t)$")
+ax2.plot(t1, solpert3[10000:10201,1],'r', label=r"$x_{2p_3}(t)$")
+ax2.legend(loc='best')
+ax2.set_xlabel('Time')
+ax2.grid()
+
+ax3.plot(t1, sol[10000:10201,2],'b', label=r"$\bar{x}_3(t)$")
+ax3.plot(t1, solpert1[10000:10201,2],'g', label=r"$x_{3p_1}(t)$")
+ax3.plot(t1, solpert2[10000:10201,2],'r', label=r"$x_{3p_2}(t)$")
+ax3.legend(loc='best')
+ax3.set_xlabel('Time')
+ax3.grid()
+
+plt.savefig('Perturbation.eps', format='eps')
+plt.show()
+
+#Approximation of the sensitivity matrix
+
+t2=np.linspace(0,100,10001)
+
+def x1bar(x):
+    x_points = t2
+    y_points = sol[10000:20001,0]
+
+    tck = sp.interpolate.splrep(x_points, y_points)
+    return sp.interpolate.splev(x, tck)
+
+def x2bar(x):
+    x_points = t2
+    y_points = sol[10000:20001,1]
+
+    tck = sp.interpolate.splrep(x_points, y_points)
+    return sp.interpolate.splev(x, tck)
+
+def x3bar(x):
+    x_points = t2
+    y_points = sol[10000:20001,2]
+
+    tck = sp.interpolate.splrep(x_points, y_points)
+    return sp.interpolate.splev(x, tck)
+
+def phi1(t):
+    return 4+np.sin(2*t*np.pi)-0.9*x1bar(t)-0.2*x2bar(t)-0.2*x3bar(t)
+
+def phi2(t):
+    return 2.5+0.5*np.sin(2*t*np.pi)-0.2*x1bar(t)-0.8*x2bar(t)-0.2*x3bar(t)
+
+def phi3(t):
+    return 2.5+0.5*np.cos(2*t*np.pi)-0.2*x1bar(t)-0.2*x2bar(t)-0.7*x3bar(t)
+
+#Matrix Differential Equation
+def pend2(y,t):
+    y11, y12, y13, y21, y22, y23, y31, y32, y33 =y
+    dydt=[ -((0.9*x1bar(t)-phi1(t))*y11+0.2*x1bar(t)*y21+0.2*x1bar(t)*y31)+x1bar(t),
+           -((0.9*x1bar(t)-phi1(t))*y12+0.2*x1bar(t)*y22+0.2*x1bar(t)*y32),
+           -((0.9*x1bar(t)-phi1(t))*y13+0.2*x1bar(t)*y23+0.2*x1bar(t)*y33),
+             -(0.2*x2bar(t)*y11+ (0.8*x2bar(t)-phi2(t))*y21+0.2*x2bar(t)*y31),
+             -(0.2*x2bar(t)*y12+ (0.8*x2bar(t)-phi2(t))*y22+0.2*x2bar(t)*y32)+x2bar(t),
+             -(0.2*x2bar(t)*y13+ (0.8*x2bar(t)-phi2(t))*y23+0.2*x2bar(t)*y33),
+               -(0.2*x3bar(t)*y11+ 0.2*x3bar(t)*y21+(0.7*x3bar(t)-phi3(t))*y31),
+               -(0.2*x3bar(t)*y12+ 0.2*x3bar(t)*y22+(0.7*x3bar(t)-phi3(t))*y32),
+               -(0.2*x3bar(t)*y13+ 0.2*x3bar(t)*y23+(0.7*x3bar(t)-phi3(t))*y33)+x3bar(t)]
+    return dydt
+
+Y0=[0.25, 0.125, 0.125, 0.125, 0.3, 0.125, 0.125, 0.125, 0.4]
+T=np.linspace(0,50,50001)
+solY=sp.integrate.odeint(pend2,Y0,T)
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+t3=np.linspace(0,2,2001)
+
+# create 9 subplots
+
+fig, axes = plt.subplots(nrows=3, ncols=3, figsize=(15,15))
+#fig.suptitle('A tale of 3 subplots')
+
+ax1 = axes[0][0]
+ax1.plot(t3, solY[48000:50001,0],'b')
+ax1.set_ylim([-0.5,2])
+ax1.set_xlabel('Time')
+ax1.grid()
+
+ax2 = axes[0][1]
+ax2.plot(t3, solY[48000:50001,1],'b')
+ax2.set_ylim([-0.5,2])
+ax2.set_xlabel('Time')
+ax2.grid()
+
+ax3 = axes[0][2]
+ax3.plot(t3, solY[48000:50001,2],'b')
+ax3.set_ylim([-0.5,2])
+ax3.set_xlabel('Time')
+ax3.grid()
+
+ax4 = axes[1][0]
+ax4.plot(t3, solY[48000:50001,3],'b')
+ax4.set_ylim([-0.5,2])
+ax4.set_xlabel('Time')
+ax4.grid()
+
+ax5 = axes[1][1]
+ax5.plot(t3, solY[48000:50001,4],'b')
+ax5.set_ylim([-0.5,2])
+ax5.set_xlabel('Time')
+ax5.grid()
+
+ax6 = axes[1][2]
+ax6.plot(t3, solY[48000:50001,5],'b')
+ax6.set_ylim([-0.5,2])
+ax6.set_xlabel('Time')
+ax6.grid()
+
+ax7 = axes[2][0]
+ax7.plot(t3, solY[48000:50001,6],'b')
+ax7.set_ylim([-0.5,2])
+ax7.set_xlabel('Time')
+ax7.grid()
+
+ax8 = axes[2][1]
+ax8.plot(t3, solY[48000:50001,7],'b')
+ax8.set_ylim([-0.5,2])
+ax8.set_xlabel('Time')
+ax8.grid()
+
+ax9 = axes[2][2]
+ax9.plot(t3, solY[48000:50001,8],'b')
+ax9.set_ylim([-0.5,2])
+ax9.set_xlabel('Time')
+ax9.grid()
+
+
+plt.savefig('Sensitivity.eps', format='eps')
+plt.show()
+
