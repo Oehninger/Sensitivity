@@ -41,6 +41,8 @@ solpert3=sp.integrate.odeint(pert3,y0,t)
 
 import matplotlib.pyplot as plt
 
+t1=np.linspace(0,2,201)
+
 fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, ncols=1, figsize=(10,15))
 
 ax1.plot(t1, sol[10000:10201,0],'b', label=r"$\bar{x}_1(t)$")
