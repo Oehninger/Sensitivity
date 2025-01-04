@@ -189,3 +189,157 @@ ax9.grid()
 plt.savefig('Sensitivity.eps', format='eps')
 plt.show()
 
+from scipy.interpolate import interp1d
+from scipy.integrate import quad
+
+#Defining S
+
+T_sub = T[48000:50001]  
+solY_sub = solY[48000:50001, :]  
+
+interp_funcs = []
+for i in range(9):
+    interp_funcs.append(interp1d(T_sub-48, solY_sub[:, i], kind='cubic'))
+
+def S(t):
+    S = np.array([
+        [interp_funcs[0](t), interp_funcs[1](t), interp_funcs[2](t)],
+        [interp_funcs[3](t), interp_funcs[4](t), interp_funcs[5](t)],
+        [interp_funcs[6](t), interp_funcs[7](t), interp_funcs[8](t)]
+    ])
+    return S
+
+def integrate_matrixS(t0, t1):
+    result = np.zeros((3, 3))
+    for i in range(3):
+        for j in range(3):
+            func = lambda t: S(t)[i, j]
+            result[i, j], _ = quad(func, t0, t1)
+    return result
+
+
+
+t0 = 0  
+t1 = 1  
+
+
+mS = integrate_matrixS(t0, t1)
+print("Average of S*:")
+print(mS)
+
+# Defining function A
+
+def A11(t):
+    return -(0.9 * x1bar(t) - phi1(t))
+
+def A12(t):
+    return  -0.2*x1bar(t)
+
+def A13(t):
+    return  -0.2*x1bar(t)
+
+def A21(t):
+    return  -0.2*x2bar(t)
+
+def A22(t):
+    return  -(0.8*x2bar(t)-phi2(t))
+
+def A23(t):
+    return  -0.2*x2bar(t)
+
+def A31(t):
+    return  -0.2*x3bar(t)
+
+def A32(t):
+    return  -0.2*x3bar(t)
+
+def A33(t):
+    return -(0.7*x3bar(t)-phi3(t))
+
+def A(t):
+    return np.array([
+        [A11(t), A12(t), A13(t)],
+        [A21(t), A22(t), A23(t)],
+        [A31(t), A32(t), A33(t)]
+    ])
+
+def integrate_matrixA(t0, t1):
+    result = np.zeros((3, 3))
+    for i in range(3):
+        for j in range(3):
+            func = lambda t: A(t)[i, j]
+            result[i, j], _ = quad(func, t0, t1)
+    return result
+
+mA = integrate_matrixA(t0, t1)
+print("Average of A:")
+print(mA)
+
+#Defining function B
+
+def B(t):
+    return np.array([
+        [x1bar(t), 0, 0],
+        [0, x2bar(t), 0],
+        [0, 0, x3bar(t)]
+    ])
+
+def integrate_matrixB(t0, t1):
+    result = np.zeros((3, 3))
+    for i in range(3):
+        for j in range(3):
+            func = lambda t: B(t)[i, j]
+            result[i, j], _ = quad(func, t0, t1)
+    return result
+
+mB = integrate_matrixB(t0, t1)
+print("Average of B:")
+print(mB)
+
+#Defining function A(t)@S(t)
+
+def C(t):
+    return A(t) @ S(t)
+    
+def integrate_matrixAS(t0, t1):
+    result = np.zeros((3, 3))
+    for i in range(3):
+        for j in range(3):
+            func = lambda t: C(t)[i, j]
+            result[i, j], _ = quad(func, t0, t1)
+    return result
+
+mAS = integrate_matrixAS(t0, t1)
+print("Average of AS*:")
+print(mAS)
+
+#Defining COV(A,S)
+
+def Cov(t):
+    return (A(t)-mA)@ (S(t)-mS)
+
+def integrate_matrixCov(t0, t1):
+    result = np.zeros((3, 3))
+    for i in range(3):
+        for j in range(3):
+            func = lambda t: Cov(t)[i, j]
+            result[i, j], _ = quad(func, t0, t1)
+    return result
+
+CovAS = integrate_matrixCov(t0, t1)
+print("Cov(A,S*):")
+print(CovAS)
+
+# Identity (4.17)
+#M{AS*}=-M{B}
+print("M{AS*}:")
+print(mAS)
+print("-M{B}:")
+print(-mB)
+
+# Identity (4.18)
+#M{A}M{S*}=-(M{B}+Cov(A,S*))
+print("M{A}M{S*}:")
+print(mA @ mS)
+print("-(M{B}+Cov(A,S*)):")
+print(-mB -CovAS)
