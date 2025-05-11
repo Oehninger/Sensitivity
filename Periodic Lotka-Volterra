@@ -10,7 +10,7 @@ def pend1(y,t):
 #The perturbated systems
 def pert1(y,t):
     x1, x2, x3 =y
-    dydt=[ x1*(4+np.sin(2*t*np.pi)-0.9*x1-0.2*x2-0.2*x3+0.25),
+    dydt=[ x1*(4+np.sin(2*t*np.pi)-0.9*x1-0.2*x2-0.2*x3+0.3),
            x2*(2.5+0.5*np.sin(2*t*np.pi)-0.2*x1-0.8*x2-0.2*x3),
            x3*(2.5+0.5*np.cos(2*t*np.pi)-0.2*x1-0.2*x2-0.7*x3)]
     return dydt
@@ -18,7 +18,7 @@ def pert1(y,t):
 def pert2(y,t):
     x1, x2, x3 =y
     dydt=[ x1*(4+np.sin(2*t*np.pi)-0.9*x1-0.2*x2-0.2*x3),
-           x2*(2.5+0.5*np.sin(2*t*np.pi)-0.2*x1-0.8*x2-0.2*x3+0.2),
+           x2*(2.5+0.5*np.sin(2*t*np.pi)-0.2*x1-0.8*x2-0.2*x3+0.5),
            x3*(2.5+0.5*np.cos(2*t*np.pi)-0.2*x1-0.2*x2-0.7*x3)]
     return dydt
 
@@ -26,7 +26,7 @@ def pert3(y,t):
     x1, x2, x3 =y
     dydt=[ x1*(4+np.sin(2*t*np.pi)-0.9*x1-0.2*x2-0.2*x3),
            x2*(2.5+0.5*np.sin(2*t*np.pi)-0.2*x1-0.8*x2-0.2*x3),
-           x3*(2.5+0.5*np.cos(2*t*np.pi)-0.2*x1-0.2*x2-0.7*x3+0.15)]
+           x3*(2.5+0.5*np.cos(2*t*np.pi)-0.2*x1-0.2*x2-0.7*x3+0.7)]
     return dydt
 
 y0=[0.8, 0.6, 0.6]
