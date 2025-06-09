@@ -69,6 +69,67 @@ ax3.grid()
 plt.savefig('Perturbation.eps', format='eps')
 plt.show()
 
+# 3D Plot
+
+fig = plt.figure(figsize=(12, 10))
+
+# Boundaries
+xlim = [0, 4.5]
+ylim = [0, 2.5]
+zlim = [0, 3.0]
+
+# Subplot 1: Original System
+ax1 = fig.add_subplot(221, projection='3d')
+ax1.plot(sol[0:401,0], sol[0:401,1], sol[0:401,2], color='blue',  lw=1.5)
+ax1.plot(sol[10000:10201,0], sol[10000:10201,1], sol[10000:10201,2], color='red', lw=1.5)
+ax1.set_xlabel('$x_1$')
+ax1.set_ylabel('$x_2$')
+ax1.set_zlabel('$x_3$')
+ax1.set_xlim(xlim)
+ax1.set_ylim(ylim)
+ax1.set_zlim(zlim)
+ax1.legend()
+
+# Subplot 2: Perturbation 1
+ax2 = fig.add_subplot(222, projection='3d')
+ax2.plot(solpert1[0:401,0], solpert1[0:401,1], solpert1[0:401,2], color='blue',  lw=1.5)
+ax2.plot(solpert1[10000:10201,0], solpert1[10000:10201,1], solpert1[10000:10201,2], color='red',  lw=1.5)
+ax2.set_xlabel('$x_1$')
+ax2.set_ylabel('$x_2$')
+ax2.set_zlabel('$x_3$')
+ax2.set_xlim(xlim)
+ax2.set_ylim(ylim)
+ax2.set_zlim(zlim)
+ax2.legend()
+
+# Subplot 3: Perturbation 2
+ax3 = fig.add_subplot(223, projection='3d')
+ax3.plot(solpert2[0:401,0], solpert2[0:401,1], solpert2[0:401,2], color='blue',  lw=1.5)
+ax3.plot(solpert2[10000:10201,0], solpert2[10000:10201,1], solpert2[10000:10201,2], color='red', lw=1.5)
+ax3.set_xlabel('$x_1$')
+ax3.set_ylabel('$x_2$')
+ax3.set_zlabel('$x_3$')
+ax3.set_xlim(xlim)
+ax3.set_ylim(ylim)
+ax3.set_zlim(zlim)
+ax3.legend()
+
+# Subplot 4: Perturbation 3
+ax4 = fig.add_subplot(224, projection='3d')
+ax4.plot(solpert3[0:401,0], solpert3[0:401,1], solpert3[0:401,2], color='blue',  lw=1.5)
+ax4.plot(solpert3[10000:10201,0], solpert3[10000:10201,1], solpert3[10000:10201,2], color='red',  lw=1.5)
+ax4.set_xlabel('$x_1$')
+ax4.set_ylabel('$x_2$')
+ax4.set_zlabel('$x_3$')
+ax4.set_xlim(xlim)
+ax4.set_ylim(ylim)
+ax4.set_zlim(zlim)
+ax4.legend()
+
+plt.tight_layout()
+plt.savefig('PhaseSpace.eps', format='eps')
+plt.show()
+
 #Approximation of the sensitivity matrix
 
 t2=np.linspace(0,100,10001)
